@@ -3,6 +3,7 @@ from Views.Mainwindow import MainWindow
 from Models.Thread import WorkerThread
 from Models.VitTransfer import init_model  # 导入初始化函数
 from Models.Camera_thread import CameraThread
+from Models.Video_thread import VideoThread
 
 
 class Controller:
@@ -21,10 +22,11 @@ class Controller:
         self.view = MainWindow()
         self.cameraThread = CameraThread()
         self.thread = WorkerThread(self.view)
+        self.videoThread=VideoThread()
         self.connect()
 
     def connect(self):
-        ### 图片
+        # 图片检测
         # view -> view
         self.view.ui.pushButton.clicked.connect(self.view.button1SignalEmitter)
         self.view.ui.pushButton_2.clicked.connect(self.view.button2SignalEmitter)
@@ -39,10 +41,10 @@ class Controller:
         self.thread.over_signal.connect(self.view.setButtonState)
         # view -> model
         self.view.destroyed.connect(self.thread.stop)
-        self.view.send_filename_signal.connect(self.thread.setData)
-        self.view.start_prediction_signal.connect(self.thread.start)
+        self.view.send_image_filename_signal.connect(self.thread.setData)
+        self.view.start_prediction_image_signal.connect(self.thread.start)
 
-        ### 摄像头
+        # 摄像头检测
         # view -> model
         self.view.open_camera_signal.connect(self.cameraThread.start)
         self.view.close_camera_signal.connect(self.cameraThread.stop)
@@ -53,6 +55,19 @@ class Controller:
         self.cameraThread.end_signal.connect(self.view.setButtonState)
         self.cameraThread.camera_state.connect(self.view.hintInfo)
         self.cameraThread.recovery_ui_signal.connect(self.view.recoveryUi)
+
+        # 视频检测
+        # view -> model
+        self.view.send_video_filename_signal.connect(self.videoThread.setFilename)
+        self.view.start_prediction_video_signal.connect(self.videoThread.start)
+        # model -> view
+        self.videoThread.start_signal.connect(self.view.setButtonState)
+        self.videoThread.end_signal.connect(self.view.setButtonState)
+        self.videoThread.end_info_signal.connect(self.view.setTableText)
+        self.videoThread.send_image_signal.connect(self.view.showImage)
+        self.videoThread.recovery_ui_signal.connect(self.view.recoveryUi)
+        self.videoThread.video_predict_state.connect(self.view.hintInfo)
+
 
     def show(self):
         self.view.show()

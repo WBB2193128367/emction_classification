@@ -1,11 +1,10 @@
 # VitTransfer.py
 import time
-
 import cv2
 import torch
 import torch.nn as nn
 from transformers import ViTConfig, ViTModel, ViTImageProcessor
-from typing import List, Literal, Tuple
+from typing import List, Literal
 from PIL import Image
 import numpy as np
 
@@ -89,7 +88,7 @@ def init_model(num_classes: int,
     print("模型已就绪！")
 
 
-def predictImage(image_path: str, classes_label: List | str) -> Tuple[str, float]:
+def predict(image: str | np.ndarray, classes_label: List | str):
     """快速预测（使用已加载的全局模型）"""
     global _global_model, _global_processor, _global_device
 
@@ -104,10 +103,13 @@ def predictImage(image_path: str, classes_label: List | str) -> Tuple[str, float
             labels = [line.strip() for line in f.readlines()]
 
     # 加载并预处理图像
-    img = Image.open(image_path).convert('RGB')
+    if isinstance(image, str):
+        img = Image.open(image).convert('RGB')
+    else:
+        img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
     img_tensor = _global_processor(images=img, return_tensors="pt")
     img_tensor = img_tensor.to(_global_device)
-
     # 预测
     with torch.no_grad():
         output = _global_model(**img_tensor)
@@ -117,32 +119,7 @@ def predictImage(image_path: str, classes_label: List | str) -> Tuple[str, float
             logits = output
         confidence = torch.nn.functional.softmax(logits, dim=1).max(dim=1)[0]
         index = torch.argmax(logits, dim=1).item()
-
-    return labels[index], confidence.item()
-
-
-def predictCamera(frame: np.ndarray, classes_label: List | str):
-
-    global _global_model, _global_processor, _global_device
-
-    img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    img_tensor = _global_processor(images=img, return_tensors="pt")
-    img_tensor = img_tensor.to(_global_device)
-
-    if isinstance(classes_label, list):
-        labels = classes_label
+    if isinstance(image, str):
+        return labels[index], confidence.item()
     else:
-        with open(classes_label, 'r') as f:
-            labels = [line.strip() for line in f.readlines()]
-
-
-    with torch.no_grad():
-        output = _global_model(**img_tensor)
-        if hasattr(output, "logits"):
-            logits = output.logits
-        else:
-            logits = output
-        confidence = torch.nn.functional.softmax(logits, dim=1).max(dim=1)[0]
-        index = torch.argmax(logits, dim=1).item()
-
-    return labels[index], confidence.item(), img
+        return labels[index], confidence.item(), img

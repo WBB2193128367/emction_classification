@@ -8,7 +8,8 @@ from .emotion import Ui_Form
 class MainWindow(QWidget):
     # 信号
     # 发射图片路径信号
-    send_filename_signal = pyqtSignal(str)
+    send_image_filename_signal = pyqtSignal(str)
+    send_video_filename_signal = pyqtSignal(str)
     # 检测完发射的信号
     prediction_end_signal = pyqtSignal(str)
     # 发送按钮状态的信号
@@ -16,11 +17,14 @@ class MainWindow(QWidget):
     warning_signal = pyqtSignal(str)
     open_folder_signal = pyqtSignal()
     open_camera_signal = pyqtSignal()
-    start_prediction_signal = pyqtSignal()
+    start_prediction_image_signal = pyqtSignal()
+    start_prediction_video_signal = pyqtSignal()
     close_camera_signal = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        self.image_or_video=None
         self.ui = Ui_Form()
         self.ui.setupUi(self)
         # 设置列宽平分模式
@@ -35,7 +39,7 @@ class MainWindow(QWidget):
         """带标题和初始目录"""
         filelist, filter = QFileDialog.getOpenFileName(
             self,
-            "请选择一张图片",  # 标题
+            "请选择图像或视频",  # 标题
             "D:/image",
             "All Files (*);;"
             "Video Files (*.mp4 *.avi *.mkv);;"
@@ -52,7 +56,8 @@ class MainWindow(QWidget):
             self.ui.tableWidget.clearContents()
             self.ui.tableWidget.setRowCount(0)
         elif filelist.split('.')[-1].lower() in ["jpg", "png", "jpeg", "bmp", "gif", "ico"]:
-            self.send_filename_signal.emit(filelist)
+            self.image_or_video="image"
+            self.send_image_filename_signal.emit(filelist)
             self.button_state_signal.emit(True, "button2", "image")
             self.ui.tableWidget.clearContents()
             self.ui.tableWidget.setRowCount(0)
@@ -60,6 +65,13 @@ class MainWindow(QWidget):
             scaled_pixmap = pixmap.scaled(self.ui.label.size(), Qt.AspectRatioMode.KeepAspectRatio,
                                           Qt.TransformationMode.SmoothTransformation)
             self.ui.label.setPixmap(scaled_pixmap)
+        elif filelist.split('.')[-1].lower() in ["mp4", "avi", "mkv"]:
+            self.image_or_video="video"
+            self.send_video_filename_signal.emit(filelist)
+            self.ui.label.setText("视频显示区")
+            self.button_state_signal.emit(True, "button2", "image")
+            self.ui.tableWidget.clearContents()
+            self.ui.tableWidget.setRowCount(0)
         else:
             self.warning_signal.emit("你选的是图片吗？")
 
@@ -115,9 +127,9 @@ class MainWindow(QWidget):
 
     @pyqtSlot(str)
     def setFontText(self, text: str):
-        if text == "图片识别":
-            self.ui.pushButton.setText("打开图片")
-            self.ui.label.setText("图片显示区")
+        if text == "图像识别":
+            self.ui.pushButton.setText("选择图像")
+            self.ui.label.setText("图像显示区")
             self.ui.pushButton_2.setText("开始检测")
         elif text == "摄像头识别":
             self.ui.pushButton.setText("打开摄像头")
@@ -131,15 +143,18 @@ class MainWindow(QWidget):
 
     @pyqtSlot()
     def button1SignalEmitter(self):
-        if self.ui.pushButton.text() == "打开图片":
+        if self.ui.comboBox.currentText() == "图像识别":
             self.open_folder_signal.emit()
-        elif self.ui.pushButton.text() == "打开摄像头":
+        elif self.ui.comboBox.currentText() == "摄像头识别":
             self.open_camera_signal.emit()
     @pyqtSlot()
     def button2SignalEmitter(self):
-        if self.ui.pushButton_2.text() == "开始检测":
-            self.start_prediction_signal.emit()
-        elif self.ui.pushButton_2.text() == "关闭摄像头":
+        if self.ui.comboBox.currentText() == "图像识别":
+            if self.image_or_video == "image":
+                self.start_prediction_image_signal.emit()
+            elif self.image_or_video == "video":
+                self.start_prediction_video_signal.emit()
+        elif self.ui.comboBox.currentText() == "摄像头识别":
             self.close_camera_signal.emit()
 
     @pyqtSlot()

@@ -1,6 +1,6 @@
 # Thread.py
 from PyQt6.QtCore import QThread, pyqtSignal, pyqtSlot
-from .VitTransfer import predictImage  # 改用快速预测函数
+from .VitTransfer import predict  # 改用快速预测函数
 
 
 class WorkerThread(QThread):
@@ -25,7 +25,7 @@ class WorkerThread(QThread):
 
         self.running = True
         # 使用快速预测（不会重复加载模型）
-        label, confidence = predictImage(self.data, class_names)
+        label, confidence = predict(self.data, class_names)
         self.running = False
 
         list_result.append([label, f'{confidence:.2%}'])
