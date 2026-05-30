@@ -27,7 +27,7 @@ class VideoThread(QThread):
 
     @pyqtSlot()
     def run(self):
-        self.start_signal.emit(True, "both", "camera")
+        self.start_signal.emit(False, "both", "image")
         # 1.打开视频
         self.cap = cv2.VideoCapture(self.filename)
         if not self.cap.isOpened():
@@ -52,7 +52,7 @@ class VideoThread(QThread):
             self.send_image_signal.emit(img)
         # 释放摄像头资源
         self.cleanup()
-        self.end_signal.emit(False, "both", "camera")
+        self.end_signal.emit(True, "both", "image")
         self.recovery_ui_signal.emit("图片/视频显示区")
         self.video_predict_state.emit("视频检测完成")
 

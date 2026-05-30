@@ -164,7 +164,7 @@ class MainWindow(QWidget):
 
     @pyqtSlot(str)
     def recoveryUi(self,text: str):
-        self.ui.label.setText()
+        self.ui.label.setText(text)
         self.ui.tableWidget.clearContents()
         self.ui.tableWidget.setRowCount(0)
 
