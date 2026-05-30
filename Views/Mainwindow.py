@@ -21,10 +21,14 @@ class MainWindow(QWidget):
     start_prediction_video_signal = pyqtSignal()
     close_camera_signal = pyqtSignal()
 
+    image_destroyed_signal = pyqtSignal()
+    video_destroyed_signal = pyqtSignal()
+    camera_destroyed_signal = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.image_or_video=None
+        self.image_or_video = None
         self.ui = Ui_Form()
         self.ui.setupUi(self)
         # 设置列宽平分模式
@@ -51,12 +55,12 @@ class MainWindow(QWidget):
         if filelist == "":
             self.button_state_signal.emit(False, "button2", "image")
             # 设置标签显示的文字
-            self.ui.label.setText("图片显示区")
+            self.ui.label.setText("图片/视频显示区")
             # 清空tableWidget的数据
             self.ui.tableWidget.clearContents()
             self.ui.tableWidget.setRowCount(0)
         elif filelist.split('.')[-1].lower() in ["jpg", "png", "jpeg", "bmp", "gif", "ico"]:
-            self.image_or_video="image"
+            self.image_or_video = "image"
             self.send_image_filename_signal.emit(filelist)
             self.button_state_signal.emit(True, "button2", "image")
             self.ui.tableWidget.clearContents()
@@ -66,7 +70,7 @@ class MainWindow(QWidget):
                                           Qt.TransformationMode.SmoothTransformation)
             self.ui.label.setPixmap(scaled_pixmap)
         elif filelist.split('.')[-1].lower() in ["mp4", "avi", "mkv"]:
-            self.image_or_video="video"
+            self.image_or_video = "video"
             self.send_video_filename_signal.emit(filelist)
             self.ui.label.setText("视频显示区")
             self.button_state_signal.emit(True, "button2", "image")
@@ -129,7 +133,7 @@ class MainWindow(QWidget):
     def setFontText(self, text: str):
         if text == "图像识别":
             self.ui.pushButton.setText("选择图像")
-            self.ui.label.setText("图像显示区")
+            self.ui.label.setText("图片/视频显示区")
             self.ui.pushButton_2.setText("开始检测")
         elif text == "摄像头识别":
             self.ui.pushButton.setText("打开摄像头")
@@ -147,6 +151,7 @@ class MainWindow(QWidget):
             self.open_folder_signal.emit()
         elif self.ui.comboBox.currentText() == "摄像头识别":
             self.open_camera_signal.emit()
+
     @pyqtSlot()
     def button2SignalEmitter(self):
         if self.ui.comboBox.currentText() == "图像识别":
@@ -157,8 +162,17 @@ class MainWindow(QWidget):
         elif self.ui.comboBox.currentText() == "摄像头识别":
             self.close_camera_signal.emit()
 
-    @pyqtSlot()
-    def recoveryUi(self):
-        self.ui.label.setText("摄像头显示区")
+    @pyqtSlot(str)
+    def recoveryUi(self,text: str):
+        self.ui.label.setText()
         self.ui.tableWidget.clearContents()
         self.ui.tableWidget.setRowCount(0)
+
+    def destroyedWidgets(self):
+        if self.ui.comboBox.currentText() == "图像识别":
+            if self.image_or_video == "image":
+                self.image_destroyed_signal.emit()
+            elif self.image_or_video == "video":
+                self.video_destroyed_signal.emit()
+        elif self.ui.comboBox.currentText() == "摄像头识别":
+            self.camera_destroyed_signal.emit()

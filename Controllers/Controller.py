@@ -30,6 +30,9 @@ class Controller:
         # view -> view
         self.view.ui.pushButton.clicked.connect(self.view.button1SignalEmitter)
         self.view.ui.pushButton_2.clicked.connect(self.view.button2SignalEmitter)
+        self.view.destroyed.connect(self.view.destroyedWidgets)
+
+
         self.view.open_folder_signal.connect(self.view.openCustomDir)
         self.view.prediction_end_signal.connect(self.view.hintInfo)
         self.view.button_state_signal.connect(self.view.setButtonState)
@@ -40,7 +43,7 @@ class Controller:
         self.thread.start_signal.connect(self.view.setButtonState)
         self.thread.over_signal.connect(self.view.setButtonState)
         # view -> model
-        self.view.destroyed.connect(self.thread.stop)
+        self.view.image_destroyed_signal.connect(self.thread.stop)
         self.view.send_image_filename_signal.connect(self.thread.setData)
         self.view.start_prediction_image_signal.connect(self.thread.start)
 
@@ -48,6 +51,7 @@ class Controller:
         # view -> model
         self.view.open_camera_signal.connect(self.cameraThread.start)
         self.view.close_camera_signal.connect(self.cameraThread.stop)
+        self.view.camera_destroyed_signal.connect(self.cameraThread.stop)
         # model -> view
         self.cameraThread.end_info_signal.connect(self.view.setTableText)
         self.cameraThread.send_image_signal.connect(self.view.showImage)
@@ -60,6 +64,7 @@ class Controller:
         # view -> model
         self.view.send_video_filename_signal.connect(self.videoThread.setFilename)
         self.view.start_prediction_video_signal.connect(self.videoThread.start)
+        self.view.video_destroyed_signal.connect(self.videoThread.stop)
         # model -> view
         self.videoThread.start_signal.connect(self.view.setButtonState)
         self.videoThread.end_signal.connect(self.view.setButtonState)

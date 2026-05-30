@@ -11,7 +11,7 @@ class VideoThread(QThread):
     end_info_signal = pyqtSignal(list, int)
     send_image_signal = pyqtSignal(np.ndarray)
     video_predict_state = pyqtSignal(str)
-    recovery_ui_signal = pyqtSignal()
+    recovery_ui_signal = pyqtSignal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -53,7 +53,7 @@ class VideoThread(QThread):
         # 释放摄像头资源
         self.cleanup()
         self.end_signal.emit(False, "both", "camera")
-        self.recovery_ui_signal.emit()
+        self.recovery_ui_signal.emit("图片/视频显示区")
         self.video_predict_state.emit("视频检测完成")
 
     def cleanup(self):

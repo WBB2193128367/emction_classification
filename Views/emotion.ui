@@ -67,7 +67,7 @@
 }</string>
      </property>
      <property name="text">
-      <string>图片显示区</string>
+      <string>图片/视频显示区</string>
      </property>
      <property name="textFormat">
       <enum>Qt::PlainText</enum>

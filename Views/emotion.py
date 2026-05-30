@@ -189,7 +189,7 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "情绪分类"))
-        self.label.setText(_translate("Form", "图片显示区"))
+        self.label.setText(_translate("Form", "图片/视频显示区"))
         self.comboBox.setItemText(0, _translate("Form", "图像识别"))
         self.comboBox.setItemText(1, _translate("Form", "摄像头识别"))
         self.tableWidget.setSortingEnabled(True)

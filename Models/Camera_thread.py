@@ -11,7 +11,7 @@ class CameraThread(QThread):
     start_signal = pyqtSignal(bool,str, str)
     end_signal = pyqtSignal(bool,str, str)
     camera_state = pyqtSignal(str)
-    recovery_ui_signal=pyqtSignal()
+    recovery_ui_signal=pyqtSignal(str)
     def __init__(self, parent=None):
         super().__init__(parent)
         self.cap = None
@@ -54,7 +54,7 @@ class CameraThread(QThread):
         # 释放摄像头资源
         self.cleanup()
         self.end_signal.emit(False, "both", "camera")
-        self.recovery_ui_signal.emit()
+        self.recovery_ui_signal.emit("摄像头显示区")
         self.camera_state.emit("摄像头已关闭")
 
     def cleanup(self):
@@ -62,7 +62,6 @@ class CameraThread(QThread):
         if self.cap:
             self.cap.release()
             self.cap = None
-
     @pyqtSlot()
     def stop(self):
         self.is_running = False
