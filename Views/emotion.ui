@@ -158,10 +158,19 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="maximumSize">
+            <size>
+             <width>175</width>
+             <height>50</height>
+            </size>
+           </property>
            <property name="styleSheet">
             <string notr="true">background-color: rgb(207, 172, 255);
 font: 14pt &quot;隶书&quot;;
 </string>
+           </property>
+           <property name="frame">
+            <bool>true</bool>
            </property>
            <item>
             <property name="text">
@@ -338,7 +347,7 @@ font: 14pt &quot;隶书&quot;;
            <property name="maximumSize">
             <size>
              <width>175</width>
-             <height>65</height>
+             <height>50</height>
             </size>
            </property>
            <property name="font">
@@ -390,7 +399,7 @@ font: 14pt &quot;隶书&quot;;
            <property name="maximumSize">
             <size>
              <width>175</width>
-             <height>65</height>
+             <height>50</height>
             </size>
            </property>
            <property name="font">
